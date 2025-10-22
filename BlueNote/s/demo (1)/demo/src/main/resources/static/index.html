@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8" />
+    <title>BlueNote – Artykuły</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef4fb;
+            color: #333;
+        }
+        header {
+            background-color: #1d4e9f;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            box-shadow: 0 3px 8px rgba(29, 78, 159, 0.5);
+        }
+        main {
+            max-width: 700px;
+            margin: 30px auto 60px auto;
+            padding: 0 15px;
+        }
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1.5px solid #bbb;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .search-bar input:focus {
+            border-color: #1d4e9f;
+            outline: none;
+            box-shadow: 0 0 6px #1d4e9f;
+        }
+        .search-bar button {
+            padding: 12px 22px;
+            background-color: #1d4e9f;
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .search-bar button:hover {
+            background-color: #153d7a;
+        }
+        #articles {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .article-card {
+            background-color: #fff;
+            border-radius: 20px;
+            border: 1px solid #ccd9ef;
+            padding: 22px 25px 25px 25px;
+            box-shadow: 0 3px 8px rgba(29, 78, 159, 0.15);
+            position: relative;
+            transition: box-shadow 0.3s;
+        }
+        .article-card:hover {
+            box-shadow: 0 6px 18px rgba(29, 78, 159, 0.3);
+        }
+        .article-header {
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .article-header h3 {
+            margin: 0;
+            color: #1d4e9f;
+            font-size: 1.35em;
+            font-weight: 700;
+        }
+        .article-header p {
+            margin: 0;
+            color: #555;
+            font-size: 14px;
+            font-style: italic;
+        }
+        .article-tags {
+            margin-top: 14px;
+        }
+        .tag {
+            display: inline-block;
+            background-color: #d7e7ff;
+            color: #1d4e9f;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            user-select: none;
+            transition: background-color 0.3s;
+        }
+        .tag:hover {
+            background-color: #aec9ff;
+        }
+        .toggle-btn {
+            background-color: #1d4e9f;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            user-select: none;
+        }
+        .toggle-btn:hover {
+            background-color: #153d7a;
+        }
+        .article-content {
+            display: none;
+            margin-top: 18px;
+            color: #444;
+            line-height: 1.6;
+            white-space: pre-line;
+            font-size: 15px;
+        }
+        .article-actions {
+            margin-top: 22px;
+            text-align: right;
+        }
+        .article-actions button {
+            padding: 10px 22px;
+            margin-left: 12px;
+            background-color: #1d4e9f;
+            color: #fff;
+            border: none;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        .article-actions button:hover {
+            background-color: #153d7a;
+        }
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 65px;
+            height: 65px;
+            background-color: #1d4e9f;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            font-size: 38px;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(29, 78, 159, 0.3);
+            user-select: none;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        .fab:hover {
+            background-color: #153d7a;
+            box-shadow: 0 8px 22px rgba(21, 61, 122, 0.6);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            border-radius: 25px;
+            padding: 35px 40px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            box-shadow: 0 8px 28px rgba(29, 78, 159, 0.3);
+        }
+        .modal-close {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            font-size: 28px;
+            color: #888;
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.3s;
+        }
+        .modal-close:hover {
+            color: #444;
+        }
+        .modal-content form label {
+            font-weight: 700;
+            margin-top: 20px;
+            display: block;
+            font-size: 16px;
+        }
+        .modal-content form input[type="text"],
+        .modal-content form textarea {
+            width: 100%;
+            padding: 12px 15px;
+            margin-top: 8px;
+            border: 1.8px solid #bbb;
+            border-radius: 15px;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        .modal-content form input[type="text"]:focus,
+        .modal-content form textarea:focus {
+            border-color: #1d4e9f;
+            outline: none;
+            box-shadow: 0 0 8px #1d4e9f;
+        }
+        .modal-content form textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .modal-content form button {
+            margin-top: 28px;
+            padding: 14px 28px;
+            background-color: #1d4e9f;
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: background-color 0.3s;
+        }
+        .modal-content form button:hover {
+            background-color: #153d7a;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>BlueNote – Zarządzanie Artykułami</h1>
+</header>
+
+<main>
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Wpisz tytuł, autora lub tag..." />
+        <button onclick="searchArticles()">Szukaj</button>
+        <button onclick="clearSearch()">Wyczyść</button>
+    </div>
+
+    <div id="articles"></div>
+
+    <button class="fab" onclick="openForm()">+</button>
+</main>
+
+<div class="modal" id="formModal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeForm()">&times;</span>
+        <h2 id="formTitle">Dodaj nowy artykuł</h2>
+        <form id="articleForm">
+            <input type="hidden" id="articleId" />
+            <label for="title">Tytuł:</label>
+            <input type="text" id="title" required />
+
+            <label for="description">Opis (max ~500 słów):</label>
+            <textarea id="description" rows="6" required></textarea>
+
+            <label for="author">Autor:</label>
+            <input type="text" id="author" required />
+
+            <label for="tags">Tagi (oddziel przecinkami):</label>
+            <input type="text" id="tags" placeholder="np. spring, java, backend" />
+
+            <button type="submit">Zapisz</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const API = 'http://localhost:8080/api/articles';
+
+    let allArticles = []; // globalna lista wszystkich artykułów
+
+    document.getElementById('articleForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('articleId').value;
+        const title = document.getElementById('title').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const author = document.getElementById('author').value.trim();
+        const tags = document.getElementById('tags').value.split(',')
+            .map(t => t.trim()).filter(t => t !== '');
+
+        const payload = { title, description, author, tags };
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `${API}/${id}` : API;
+
+        const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+            closeForm();
+            await loadArticles();
+        } else {
+            alert('Błąd zapisu artykułu');
+        }
+    });
+
+    async function loadArticles() {
+        try {
+            const res = await fetch(`${API}/search`);
+            if (!res.ok) {
+                console.error('Błąd ładowania artykułów');
+                return;
+            }
+            allArticles = await res.json();
+            displayArticles(allArticles);
+        } catch (err) {
+            console.error('Błąd sieci:', err);
+        }
+    }
+
+    function searchArticles() {
+        const q = document.getElementById('searchInput').value.trim().toLowerCase();
+        if (!q) {
+            // pusty search - pokaż wszystkie
+            displayArticles(allArticles);
+            return;
+        }
+
+        // filtrujemy i sortujemy lokalnie
+        const filtered = allArticles
+            .map(article => {
+                const titleMatch = article.title.toLowerCase().includes(q);
+                const authorMatch = article.author.toLowerCase().includes(q);
+                const tagsArray = Array.isArray(article.tags) ? article.tags : [];
+                const tagsStr = tagsArray.map(t => (t.name ? t.name : t)).join(' ').toLowerCase();
+                const tagMatch = tagsStr.includes(q);
+
+                // priorytet: 3 - tytuł, 2 - autor, 1 - tagi
+                let priority = 0;
+                if (titleMatch) priority = 3;
+                else if (authorMatch) priority = 2;
+                else if (tagMatch) priority = 1;
+
+                return { article, priority };
+            })
+            .filter(x => x.priority > 0)
+            .sort((a, b) => b.priority - a.priority)
+            .map(x => x.article);
+
+        displayArticles(filtered);
+    }
+
+    function displayArticles(articles) {
+        const container = document.getElementById('articles');
+        container.innerHTML = '';
+        if (!Array.isArray(articles)) {
+            console.error('Nieprawidłowy format artykułów', articles);
+            return;
+        }
+        articles.forEach(article => {
+            const card = document.createElement('div');
+            card.className = 'article-card';
+
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'article-header';
+
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'info';
+
+            const titleH3 = document.createElement('h3');
+            titleH3.textContent = article.title;
+
+            const authorP = document.createElement('p');
+            authorP.textContent = 'Autor: ' + article.author;
+
+            infoDiv.appendChild(titleH3);
+            infoDiv.appendChild(authorP);
+
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'toggle-btn';
+            toggleBtn.textContent = '▼';
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'article-content';
+
+            toggleBtn.onclick = () => {
+                contentDiv.style.display = (contentDiv.style.display === 'block' ? 'none' : 'block');
+            };
+
+            headerDiv.appendChild(infoDiv);
+            headerDiv.appendChild(toggleBtn);
+
+            const tagsDiv = document.createElement('div');
+            tagsDiv.className = 'article-tags';
+            if (Array.isArray(article.tags)) {
+                article.tags.forEach(t => {
+                    const span = document.createElement('span');
+                    span.className = 'tag';
+                    span.textContent = t.name || t; // obsługa jeśli tag to string lub obiekt
+                    tagsDiv.appendChild(span);
+                });
+            }
+
+            contentDiv.textContent = article.description;
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'article-actions';
+            const editBtn = document.createElement('button');
+            editBtn.textContent = 'Edytuj';
+            editBtn.onclick = () => editArticle(article.id);
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'Usuń';
+            deleteBtn.onclick = () => deleteArticle(article.id);
+
+            actionsDiv.appendChild(editBtn);
+            actionsDiv.appendChild(deleteBtn);
+
+            card.appendChild(headerDiv);
+            card.appendChild(tagsDiv);
+            card.appendChild(contentDiv);
+            card.appendChild(actionsDiv);
+
+            container.appendChild(card);
+        });
+    }
+
+    async function editArticle(id) {
+        const res = await fetch(`${API}/${id}`);
+        if (!res.ok) {
+            alert('Nie znaleziono artykułu');
+            return;
+        }
+        const article = await res.json();
+        document.getElementById('formTitle').textContent = 'Edytuj artykuł';
+        document.getElementById('articleId').value = article.id;
+        document.getElementById('title').value = article.title;
+        document.getElementById('description').value = article.description;
+        document.getElementById('author').value = article.author;
+        document.getElementById('tags').value = (article.tags || []).map(t => t.name || t).join(', ');
+        openForm();
+    }
+
+    async function deleteArticle(id) {
+        if (!confirm('Na pewno chcesz usunąć ten artykuł?')) return;
+        const res = await fetch(`${API}/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            await loadArticles();
+        } else {
+            alert('Błąd przy usuwaniu');
+        }
+    }
+
+    function openForm() {
+        document.getElementById('formTitle').textContent = 'Dodaj nowy artykuł';
+        document.getElementById('articleForm').reset();
+        document.getElementById('articleId').value = '';
+        document.getElementById('formModal').style.display = 'flex';
+    }
+
+    function closeForm() {
+        document.getElementById('formModal').style.display = 'none';
+    }
+
+    window.onclick = (event) => {
+        const modal = document.getElementById('formModal');
+        if (event.target === modal) {
+            closeForm();
+        }
+    };
+
+    // Wczytanie artykułów po załadowaniu strony
+    loadArticles();
+</script>
+
+</body>
+</html>

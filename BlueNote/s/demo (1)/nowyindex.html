@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<title>BlueNote – Artykuły</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #eef4fb;
+    color: #333;
+  }
+  header {
+    background-color: #1d4e9f;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    border-radius: 0 0 20px 20px;
+  }
+  main {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 0 20px;
+  }
+  .search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+  }
+  .search-bar input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #bbb;
+    border-radius: 20px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+  }
+  .search-bar input:focus {
+    outline: none;
+    border-color: #1d4e9f;
+  }
+  .search-bar button {
+    padding: 10px 20px;
+    background-color: #1d4e9f;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+  .search-bar button:hover {
+    background-color: #153d7a;
+  }
+  #articles {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .article-card {
+    background-color: #fff;
+    border-radius: 20px;
+    border: 1px solid #ccd9ef;
+    padding: 20px;
+    position: relative;
+    transition: box-shadow 0.3s;
+  }
+  .article-card:hover {
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  }
+  .article-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .article-header h3 {
+    margin: 0;
+    color: #1d4e9f;
+    font-size: 1.5em;
+  }
+  .article-header p {
+    margin: 0;
+    color: #555;
+    font-size: 14px;
+  }
+  .article-tags {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tag {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: default;
+    user-select: none;
+  }
+  .toggle-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    color: #1d4e9f;
+    user-select: none;
+  }
+  .toggle-btn.rotated {
+    transform: rotate(180deg);
+  }
+  .article-content {
+    display: none;
+    margin-top: 15px;
+    color: #444;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+  .article-actions {
+    margin-top: 20px;
+    text-align: right;
+  }
+  .article-actions button {
+    padding: 8px 16px;
+    margin-left: 10px;
+    background-color: #1d4e9f;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+  }
+  .article-actions button:hover {
+    background-color: #153d7a;
+  }
+  .fab {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background-color: #1d4e9f;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 36px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: background-color 0.3s;
+  }
+  .fab:hover {
+    background-color: #153d7a;
+  }
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-content {
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+  }
+  .modal-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    color: #888;
+    cursor: pointer;
+    user-select: none;
+  }
+  .modal-close:hover {
+    color: #444;
+  }
+  .modal-content form label {
+    font-weight: bold;
+    margin-top: 15px;
+    display: block;
+  }
+  .modal-content form input[type="text"],
+  .modal-content form textarea,
+  .modal-content form select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #bbb;
+    border-radius: 20px;
+    font-size: 15px;
+    box-sizing: border-box;
+  }
+  .modal-content form textarea {
+    resize: vertical;
+  }
+  .modal-content form button {
+    margin-top: 20px;
+    padding: 12px 24px;
+    background-color: #1d4e9f;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .modal-content form button:hover {
+    background-color: #153d7a;
+  }
+
+  /* Tag color picker styling */
+  .tag-color-picker {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+  .color-option {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.3s;
+  }
+  .color-option.selected {
+    border-color: #000;
+  }
+
+  /* Selected tags display in form */
+  .selected-tags-container {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .selected-tag {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .selected-tag span {
+    font-size: 16px;
+    line-height: 1;
+  }
+  .selected-tag .remove-tag {
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>BlueNote – Zarządzanie Artykułami</h1>
+</header>
+
+<main>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Wpisz tytuł, autora lub tag..." />
+    <button onclick="searchArticles()">Szukaj</button>
+    <button onclick="clearSearch()">Wyczyść</button>
+  </div>
+
+  <div id="articles"></div>
+
+  <button class="fab" onclick="openForm()">+</button>
+</main>
+
+<div class="modal" id="formModal">
+  <div class="modal-content">
+    <span class="modal-close" onclick="closeForm()">&times;</span>
+    <h2>Dodaj nową notatkę</h2>
+    <form id="articleForm" onsubmit="submitArticle(event)">
+      <label for="title">Tytuł</label>
+      <input type="text" id="title" name="title" required maxlength="100" />
+
+      <label for="description">Opis (max 500 słów)</label>
+      <textarea id="description" name="description" rows="5" required maxlength="4000"></textarea>
+
+      <label for="author">Autor</label>
+      <input type="text" id="author" name="author" required maxlength="50" />
+
+      <label>Wybierz tagi (kliknij, aby dodać/usunąć):</label>
+      <div id="availableTags"></div>
+
+      <label for="newTagName">Dodaj nowy tag</label>
+      <input type="text" id="newTagName" placeholder="Nazwa nowego tagu..." maxlength="20" />
+      <div class="tag-color-picker" id="colorPicker">
+        <!-- Kolory pojawią się tu dynamicznie -->
+      </div>
+      <button type="button" onclick="addNewTag()">Dodaj tag</button>
+
+      <div class="selected-tags-container" id="selectedTagsContainer"></div>
+
+      <button type="submit">Zapisz notatkę</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const API_URL = 'http://localhost:8080/api';
+  let articles = [];
+  let availableTags = [];
+  let selectedTags = [];
+
+  const colors = [
+    '#1d4e9f', '#f4a261', '#e76f51', '#2a9d8f', '#264653',
+    '#e63946', '#ffb703', '#8ecae6', '#219ebc', '#06d6a0'
+  ];
+
+  // Pobierz i wyświetl artykuły
+  async function loadArticles() {
+    try {
+      const res = await fetch(`${API_URL}/articles`);
+      if (!res.ok) throw new Error('Błąd ładowania artykułów');
+      articles = await res.json();
+      renderArticles(articles);
+    } catch (e) {
+      alert('Błąd: ' + e.message);
+    }
+  }
+
+  // Pobierz dostępne tagi z serwera
+  async function loadAvailableTags() {
+    try {
+      const res = await fetch(`${API_URL}/tags`);
+      if (!res.ok) throw new Error('Błąd podczas ładowania tagów');
+      availableTags = await res.json();
+      renderAvailableTags();
+    } catch (e) {
+      alert('Błąd: ' + e.message);
+    }
+  }
+
+  // Renderuj artykuły
+  function renderArticles(list) {
+    const container = document.getElementById('articles');
+    container.innerHTML = '';
+
+    if (list.length === 0) {
+      container.innerHTML = '<p>Brak notatek do wyświetlenia.</p>';
+      return;
+    }
+
+    list.forEach(article => {
+      const card = document.createElement('div');
+      card.className = 'article-card';
+
+      // Nagłówek z tytułem i autorem
+      const header = document.createElement('div');
+      header.className = 'article-header';
+
+      const title = document.createElement('h3');
+      title.textContent = article.title;
+
+      const author = document.createElement('p');
+      author.textContent = 'Autor: ' + article.author;
+
+      header.appendChild(title);
+      header.appendChild(author);
+
+      // Przycisk rozwijania
+      const toggleBtn = document.createElement('button');
+      toggleBtn.className = 'toggle-btn';
+      toggleBtn.innerHTML = '▼';
+      toggleBtn.onclick = () => {
+        const content = card.querySelector('.article-content');
+        if (content.style.display === 'block') {
+          content.style.display = 'none';
+          toggleBtn.classList.remove('rotated');
+        } else {
+          content.style.display = 'block';
+          toggleBtn.classList.add('rotated');
+        }
+      };
+      header.appendChild(toggleBtn);
+
+      card.appendChild(header);
+
+      // Opis artykułu (ukryty)
+      const content = document.createElement('div');
+      content.className = 'article-content';
+      content.textContent = article.description;
+      card.appendChild(content);
+
+      // Tagi
+      const tagContainer = document.createElement('div');
+      tagContainer.className = 'article-tags';
+      article.tags.forEach(tag => {
+        const tagElem = document.createElement('span');
+        tagElem.className = 'tag';
+        tagElem.textContent = tag.name;
+        tagElem.style.backgroundColor = tag.color || '#1d4e9f';
+        tagContainer.appendChild(tagElem);
+      });
+      card.appendChild(tagContainer);
+
+      container.appendChild(card);
+    });
+  }
+
+  // Renderuj dostępne tagi do wyboru w formularzu
+  function renderAvailableTags() {
+    const container = document.getElementById('availableTags');
+    container.innerHTML = '';
+    availableTags.forEach(tag => {
+      const tagElem = document.createElement('span');
+      tagElem.className = 'tag';
+      tagElem.textContent = tag.name;
+      tagElem.style.backgroundColor = tag.color || '#1d4e9f';
+      tagElem.onclick = () => toggleSelectTag(tag);
+      container.appendChild(tagElem);
+    });
+  }
+
+  // Toggle zaznaczenie taga
+  function toggleSelectTag(tag) {
+    const index = selectedTags.findIndex(t => t.name.toLowerCase() === tag.name.toLowerCase());
+    if (index >= 0) {
+      selectedTags.splice(index, 1);
+    } else {
+      selectedTags.push(tag);
+    }
+    renderSelectedTags();
+  }
+
+  // Renderuj zaznaczone tagi pod formularzem
+  function renderSelectedTags() {
+    const container = document.getElementById('selectedTagsContainer');
+    container.innerHTML = '';
+    selectedTags.forEach(tag => {
+      const tagElem = document.createElement('div');
+      tagElem.className = 'selected-tag';
+      tagElem.style.backgroundColor = tag.color || '#1d4e9f';
+      tagElem.textContent = tag.name;
+
+      // Dodaj przycisk usuwania
+      const removeBtn = document.createElement('span');
+      removeBtn.className = 'remove-tag';
+      removeBtn.textContent = '×';
+      removeBtn.onclick = () => {
+        selectedTags = selectedTags.filter(t => t.name.toLowerCase() !== tag.name.toLowerCase());
+        renderSelectedTags();
+      };
+
+      tagElem.appendChild(removeBtn);
+      container.appendChild(tagElem);
+    });
+  }
+
+  // Dodaj nowy tag z pola + koloru
+  function addNewTag() {
+    const newTagNameInput = document.getElementById('newTagName');
+    const newTagName = newTagNameInput.value.trim();
+    if (!newTagName) {
+      alert('Podaj nazwę nowego tagu');
+      return;
+    }
+    if (availableTags.some(t => t.name.toLowerCase() === newTagName.toLowerCase()) ||
+        selectedTags.some(t => t.name.toLowerCase() === newTagName.toLowerCase())) {
+      alert('Tag o takiej nazwie już istnieje');
+      return;
+    }
+
+    // Pobierz wybrany kolor
+    const selectedColorElem = document.querySelector('.color-option.selected');
+    const color = selectedColorElem ? selectedColorElem.style.backgroundColor : colors[0];
+
+    const newTag = { name: newTagName, color };
+    availableTags.push(newTag);
+    selectedTags.push(newTag);
+    renderAvailableTags();
+    renderSelectedTags();
+
+    newTagNameInput.value = '';
+    clearColorSelection();
+  }
+
+  // Inicjuj wybór koloru dla nowego tagu
+  function initColorPicker() {
+    const picker = document.getElementById('colorPicker');
+    picker.innerHTML = '';
+    colors.forEach(color => {
+      const div = document.createElement('div');
+      div.className = 'color-option';
+      div.style.backgroundColor = color;
+      div.onclick = () => {
+        clearColorSelection();
+        div.classList.add('selected');
+      };
+      picker.appendChild(div);
+    });
+  }
+
+  function clearColorSelection() {
+    document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+  }
+
+  // Otwórz formularz dodawania
+  function openForm() {
+    selectedTags = [];
+    renderSelectedTags();
+    document.getElementById('articleForm').reset();
+    clearColorSelection();
+    document.getElementById('formModal').style.display = 'flex';
+  }
+
+  // Zamknij formularz
+  function closeForm() {
+    document.getElementById('formModal').style.display = 'none';
+  }
+
+  // Obsługa submitu formularza
+  async function submitArticle(e) {
+    e.preventDefault();
+
+    const title = e.target.title.value.trim();
+    const description = e.target.description.value.trim();
+    const author = e.target.author.value.trim();
+
+    if (description.split(/\s+/).length > 500) {
+      alert('Opis nie może mieć więcej niż 500 słów');
+      return;
+    }
+    if (selectedTags.length === 0) {
+      alert('Wybierz przynajmniej jeden tag');
+      return;
+    }
+
+    const payload = {
+      title,
+      description,
+      author,
+      tagDTOs: selectedTags.map(t => ({ name: t.name, color: t.color }))
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/articles`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Błąd zapisu: ${res.status} ${errText}`);
+      }
+      await loadArticles();
+      closeForm();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  // Szukaj artykułów (tytuł, autor, tag)
+  async function searchArticles() {
+    const query = document.getElementById('searchInput').value.trim().toLowerCase();
+
+    if (!query) {
+      renderArticles(articles);
+      return;
+    }
+
+    // Filtrujemy lokalnie, możesz zaimplementować backendowe API jeśli chcesz
+    const filtered = articles.filter(article => {
+      const inTitle = article.title.toLowerCase().includes(query);
+      const inAuthor = article.author.toLowerCase().includes(query);
+      const inTags = article.tags.some(tag => tag.name.toLowerCase().includes(query));
+      return inTitle || inAuthor || inTags;
+    });
+
+    // Sortuj tak, żeby artykuły ze znalezionym tagiem były na górze
+    const sorted = filtered.sort((a,b) => {
+      const aTagMatch = a.tags.some(t => t.name.toLowerCase() === query);
+      const bTagMatch = b.tags.some(t => t.name.toLowerCase() === query);
+      if (aTagMatch && !bTagMatch) return -1;
+      if (!aTagMatch && bTagMatch) return 1;
+      return 0;
+    });
+
+    renderArticles(sorted);
+  }
+
+  // Wyczyść wyszukiwanie i pokaż wszystko
+  function clearSearch() {
+    document.getElementById('searchInput').value = '';
+    renderArticles(articles);
+  }
+
+  window.onload = () => {
+    loadArticles();
+    loadAvailableTags();
+    initColorPicker();
+  };
+</script>
+
+</body>
+</html>
