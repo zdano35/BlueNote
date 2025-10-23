@@ -14,15 +14,22 @@ public class Tag {
 
     @Column(unique = true)
     private String name;
+
     private String color;  // np. "#1d4e9f" albo "red"
+
     @ManyToMany(mappedBy = "tags")
     @JsonBackReference
     private Set<Article> articles = new HashSet<>();
 
     // Gettery i Settery
     public Long getId() { return id; }
+
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+
+    public String getColor() { return color; }
+    public void setColor(String color) { this.color = color; }
+
     public Set<Article> getArticles() { return articles; }
     public void setArticles(Set<Article> articles) { this.articles = articles; }
 }

@@ -6,7 +6,8 @@ import com.BlueNote.demo.service.ArticleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/articles")
@@ -24,7 +25,8 @@ public class ArticleController {
                 request.getTitle(),
                 request.getDescription(),
                 request.getAuthor(),
-                request.getTags()
+                request.getCreatedAt(),
+                request.getTagDTOs()
         );
         return ResponseEntity.ok(article);
     }
@@ -50,7 +52,10 @@ public class ArticleController {
             existing.setTitle(request.getTitle());
             existing.setDescription(request.getDescription());
             existing.setAuthor(request.getAuthor());
-            existing.setTags(articleService.convertTagNamesToTags(request.getTags()));
+            existing.setTags(articleService.convertTagDTOsToTags(request.getTagDTOs()));
+            if (request.getCreatedAt() != null) {
+                existing.setCreatedAt(request.getCreatedAt());
+            }
             Article updated = articleService.saveArticle(existing);
             return ResponseEntity.ok(updated);
         }).orElse(ResponseEntity.notFound().build());
@@ -88,12 +93,16 @@ public class ArticleController {
         return ResponseEntity.ok(articleService.getAllTags());
     }
 
-    // DTO – obiekt przyjmowany z frontu
+    // ==============================
+    // DTOs
+    // ==============================
+
     public static class ArticleRequest {
         private String title;
         private String description;
         private String author;
-        private List<String> tags;
+        private LocalDateTime createdAt;
+        private List<TagDTO> tagDTOs;
 
         public String getTitle() { return title; }
         public void setTitle(String title) { this.title = title; }
@@ -104,7 +113,21 @@ public class ArticleController {
         public String getAuthor() { return author; }
         public void setAuthor(String author) { this.author = author; }
 
-        public List<String> getTags() { return tags; }
-        public void setTags(List<String> tags) { this.tags = tags; }
+        public LocalDateTime getCreatedAt() { return createdAt; }
+        public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+        public List<TagDTO> getTagDTOs() { return tagDTOs; }
+        public void setTagDTOs(List<TagDTO> tagDTOs) { this.tagDTOs = tagDTOs; }
+    }
+
+    public static class TagDTO {
+        private String name;
+        private String color;
+
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+
+        public String getColor() { return color; }
+        public void setColor(String color) { this.color = color; }
     }
 }

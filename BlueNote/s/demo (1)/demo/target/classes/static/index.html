@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8" />
-    <title>BlueNote – Artykuły</title>
+    <title>BlueNote</title>
     <style>
         body {
             margin: 0;
@@ -15,476 +15,341 @@
             color: #fff;
             padding: 20px;
             text-align: center;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            box-shadow: 0 3px 8px rgba(29, 78, 159, 0.5);
+            border-radius: 0 0 20px 20px;
         }
         main {
-            max-width: 700px;
-            margin: 30px auto 60px auto;
-            padding: 0 15px;
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
         }
+
+        /* Wyszukiwarka */
         .search-bar {
             display: flex;
             gap: 10px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+            align-items: center;
         }
         .search-bar input {
             flex: 1;
-            padding: 12px 15px;
-            border: 1.5px solid #bbb;
+            padding: 12px 18px;
+            border: 1px solid #bbb;
             border-radius: 25px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
         .search-bar input:focus {
-            border-color: #1d4e9f;
             outline: none;
-            box-shadow: 0 0 6px #1d4e9f;
+            border-color: #1d4e9f;
+            box-shadow: 0 0 6px rgba(29,78,159,0.3);
         }
         .search-bar button {
-            padding: 12px 22px;
+            padding: 10px 20px;
             background-color: #1d4e9f;
             color: #fff;
             border: none;
-            border-radius: 25px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             transition: background-color 0.3s;
         }
         .search-bar button:hover {
             background-color: #153d7a;
         }
+
+        /* Artykuły */
         #articles {
             display: flex;
             flex-direction: column;
-            gap: 25px;
+            gap: 15px;
         }
         .article-card {
             background-color: #fff;
-            border-radius: 20px;
+            border-radius: 16px;
             border: 1px solid #ccd9ef;
-            padding: 22px 25px 25px 25px;
-            box-shadow: 0 3px 8px rgba(29, 78, 159, 0.15);
-            position: relative;
-            transition: box-shadow 0.3s;
+            padding: 16px 24px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
         }
         .article-card:hover {
-            box-shadow: 0 6px 18px rgba(29, 78, 159, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.1);
         }
         .article-header {
-            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
         }
-        .article-header h3 {
+        .article-info {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .article-info h3 {
             margin: 0;
             color: #1d4e9f;
-            font-size: 1.35em;
-            font-weight: 700;
+            font-size: 1.3em;
         }
-        .article-header p {
-            margin: 0;
+        .article-info .author, .article-info .date {
             color: #555;
-            font-size: 14px;
-            font-style: italic;
+            font-size: 0.9em;
         }
         .article-tags {
-            margin-top: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
         }
         .tag {
             display: inline-block;
-            background-color: #d7e7ff;
-            color: #1d4e9f;
-            padding: 6px 14px;
-            border-radius: 30px;
+            padding: 5px 12px;
+            border-radius: 25px;
             font-size: 13px;
-            margin-right: 8px;
-            margin-bottom: 8px;
             font-weight: 600;
+            cursor: default;
             user-select: none;
-            transition: background-color 0.3s;
+            transition: transform 0.2s ease;
         }
-        .tag:hover {
-            background-color: #aec9ff;
-        }
+        .tag:hover { transform: scale(1.05); }
         .toggle-btn {
-            background-color: #1d4e9f;
-            color: white;
+            background: none;
             border: none;
-            border-radius: 12px;
-            padding: 8px 16px;
-            font-size: 14px;
+            font-size: 22px;
             cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.3s;
+            color: #1d4e9f;
+            transition: transform 0.3s ease;
             user-select: none;
         }
-        .toggle-btn:hover {
-            background-color: #153d7a;
-        }
+        .toggle-btn.rotated { transform: rotate(180deg); }
         .article-content {
-            display: none;
-            margin-top: 18px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.4s ease;
+            opacity: 0;
             color: #444;
-            line-height: 1.6;
-            white-space: pre-line;
-            font-size: 15px;
+            margin-top: 10px;
+            line-height: 1.5;
+            white-space: pre-wrap;
         }
-        .article-actions {
-            margin-top: 22px;
-            text-align: right;
+        .article-content.open {
+            max-height: 500px;
+            opacity: 1;
         }
-        .article-actions button {
-            padding: 10px 22px;
-            margin-left: 12px;
-            background-color: #1d4e9f;
-            color: #fff;
-            border: none;
-            border-radius: 18px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: background-color 0.3s;
+
+        @media (max-width: 700px) {
+            .article-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .article-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
-        .article-actions button:hover {
-            background-color: #153d7a;
-        }
+
+        /* Przycisk dodawania */
         .fab {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            width: 65px;
-            height: 65px;
+            width: 60px;
+            height: 60px;
             background-color: #1d4e9f;
             color: #fff;
             border: none;
             border-radius: 50%;
-            font-size: 38px;
+            font-size: 36px;
             cursor: pointer;
-            box-shadow: 0 6px 16px rgba(29, 78, 159, 0.3);
-            user-select: none;
-            transition: background-color 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: background-color 0.3s, transform 0.3s;
         }
-        .fab:hover {
-            background-color: #153d7a;
-            box-shadow: 0 8px 22px rgba(21, 61, 122, 0.6);
-        }
+        .fab:hover { background-color: #153d7a; transform: scale(1.05); }
+
+        /* Modal (formularz) — NAPRAWIONY */
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
-            left: 0; top: 0;
-            width: 100%; height: 100%;
+            inset: 0;
             background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
             justify-content: center;
             align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal.show {
+            display: flex;
+            opacity: 1;
         }
         .modal-content {
             background-color: #fff;
-            border-radius: 25px;
-            padding: 35px 40px;
+            border-radius: 20px;
+            padding: 30px;
             width: 90%;
             max-width: 600px;
             position: relative;
-            box-shadow: 0 8px 28px rgba(29, 78, 159, 0.3);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .modal.show .modal-content {
+            transform: scale(1);
         }
         .modal-close {
             position: absolute;
-            top: 18px;
-            right: 22px;
+            top: 15px;
+            right: 20px;
             font-size: 28px;
             color: #888;
             cursor: pointer;
-            user-select: none;
-            transition: color 0.3s;
         }
-        .modal-close:hover {
-            color: #444;
+        .modal-close:hover { color: #444; }
+
+        /* Formularz */
+        .modal-content form {
+            display: flex;
+            flex-direction: column;
         }
         .modal-content form label {
-            font-weight: 700;
-            margin-top: 20px;
+            font-weight: bold;
+            margin-top: 15px;
             display: block;
-            font-size: 16px;
         }
         .modal-content form input[type="text"],
         .modal-content form textarea {
             width: 100%;
-            padding: 12px 15px;
-            margin-top: 8px;
-            border: 1.8px solid #bbb;
-            border-radius: 15px;
+            padding: 10px 15px;
+            margin-top: 5px;
+            border: 1px solid #bbb;
+            border-radius: 20px;
             font-size: 15px;
-            box-sizing: border-box;
-            transition: border-color 0.3s;
-        }
-        .modal-content form input[type="text"]:focus,
-        .modal-content form textarea:focus {
-            border-color: #1d4e9f;
-            outline: none;
-            box-shadow: 0 0 8px #1d4e9f;
         }
         .modal-content form textarea {
             resize: vertical;
-            min-height: 100px;
         }
         .modal-content form button {
-            margin-top: 28px;
-            padding: 14px 28px;
+            margin-top: 20px;
+            padding: 12px 24px;
             background-color: #1d4e9f;
             color: #fff;
             border: none;
-            border-radius: 25px;
-            font-size: 18px;
+            border-radius: 20px;
+            font-size: 16px;
             cursor: pointer;
-            font-weight: 700;
             transition: background-color 0.3s;
+            align-self: flex-end;
         }
         .modal-content form button:hover {
             background-color: #153d7a;
         }
+
+        /* Kolory i tagi */
+        .tag-color-picker {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+        .color-option.selected { border-color: #000; }
+
+        .selected-tags-container {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .selected-tag {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .selected-tag .remove-tag {
+            font-weight: bold;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-<header>
-    <h1>BlueNote – Zarządzanie Artykułami</h1>
-</header>
+<header><h1>BlueNote – Zarządzanie Artykułami</h1></header>
 
 <main>
     <div class="search-bar">
         <input type="text" id="searchInput" placeholder="Wpisz tytuł, autora lub tag..." />
-        <button onclick="searchArticles()">Szukaj</button>
         <button onclick="clearSearch()">Wyczyść</button>
     </div>
-
     <div id="articles"></div>
-
     <button class="fab" onclick="openForm()">+</button>
 </main>
 
+<!-- Formularz (naprawiony) -->
 <div class="modal" id="formModal">
     <div class="modal-content">
         <span class="modal-close" onclick="closeForm()">&times;</span>
-        <h2 id="formTitle">Dodaj nowy artykuł</h2>
-        <form id="articleForm">
-            <input type="hidden" id="articleId" />
-            <label for="title">Tytuł:</label>
-            <input type="text" id="title" required />
-
-            <label for="description">Opis (max ~500 słów):</label>
-            <textarea id="description" rows="6" required></textarea>
-
-            <label for="author">Autor:</label>
-            <input type="text" id="author" required />
-
-            <label for="tags">Tagi (oddziel przecinkami):</label>
-            <input type="text" id="tags" placeholder="np. spring, java, backend" />
-
-            <button type="submit">Zapisz</button>
+        <h2>Dodaj nową notatkę</h2>
+        <form id="articleForm" onsubmit="submitArticle(event)">
+            <label for="title">Tytuł</label>
+            <input type="text" id="title" name="title" required maxlength="100" />
+            <label for="description">Opis (max 500 słów)</label>
+            <textarea id="description" name="description" rows="5" required maxlength="4000"></textarea>
+            <label for="author">Autor</label>
+            <input type="text" id="author" name="author" required maxlength="50" />
+            <label>Wybierz tagi:</label>
+            <div id="availableTags"></div>
+            <label for="newTagName">Dodaj nowy tag</label>
+            <input type="text" id="newTagName" placeholder="Nazwa nowego tagu..." maxlength="20" />
+            <div class="tag-color-picker" id="colorPicker"></div>
+            <button type="button" onclick="addNewTag()">Dodaj tag</button>
+            <div class="selected-tags-container" id="selectedTagsContainer"></div>
+            <button type="submit">Zapisz notatkę</button>
         </form>
     </div>
 </div>
 
 <script>
-    const API = 'http://localhost:8080/api/articles';
+    const API_URL='http://localhost:8080/api';
+    let articles=[],availableTags=[],selectedTags=[];
+    const colors=['#1d4e9f','#f4a261','#e76f51','#2a9d8f','#264653','#e63946','#ffb703','#8ecae6','#219ebc','#06d6a0'];
 
-    let allArticles = []; // globalna lista wszystkich artykułów
-
-    document.getElementById('articleForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('articleId').value;
-        const title = document.getElementById('title').value.trim();
-        const description = document.getElementById('description').value.trim();
-        const author = document.getElementById('author').value.trim();
-        const tags = document.getElementById('tags').value.split(',')
-            .map(t => t.trim()).filter(t => t !== '');
-
-        const payload = { title, description, author, tags };
-        const method = id ? 'PUT' : 'POST';
-        const url = id ? `${API}/${id}` : API;
-
-        const res = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-
-        if (res.ok) {
-            closeForm();
-            await loadArticles();
-        } else {
-            alert('Błąd zapisu artykułu');
-        }
-    });
-
-    async function loadArticles() {
-        try {
-            const res = await fetch(`${API}/search`);
-            if (!res.ok) {
-                console.error('Błąd ładowania artykułów');
-                return;
-            }
-            allArticles = await res.json();
-            displayArticles(allArticles);
-        } catch (err) {
-            console.error('Błąd sieci:', err);
-        }
-    }
-
-    function searchArticles() {
-        const q = document.getElementById('searchInput').value.trim().toLowerCase();
-        if (!q) {
-            // pusty search - pokaż wszystkie
-            displayArticles(allArticles);
-            return;
-        }
-
-        // filtrujemy i sortujemy lokalnie
-        const filtered = allArticles
-            .map(article => {
-                const titleMatch = article.title.toLowerCase().includes(q);
-                const authorMatch = article.author.toLowerCase().includes(q);
-                const tagsArray = Array.isArray(article.tags) ? article.tags : [];
-                const tagsStr = tagsArray.map(t => (t.name ? t.name : t)).join(' ').toLowerCase();
-                const tagMatch = tagsStr.includes(q);
-
-                // priorytet: 3 - tytuł, 2 - autor, 1 - tagi
-                let priority = 0;
-                if (titleMatch) priority = 3;
-                else if (authorMatch) priority = 2;
-                else if (tagMatch) priority = 1;
-
-                return { article, priority };
-            })
-            .filter(x => x.priority > 0)
-            .sort((a, b) => b.priority - a.priority)
-            .map(x => x.article);
-
-        displayArticles(filtered);
-    }
-
-    function displayArticles(articles) {
-        const container = document.getElementById('articles');
-        container.innerHTML = '';
-        if (!Array.isArray(articles)) {
-            console.error('Nieprawidłowy format artykułów', articles);
-            return;
-        }
-        articles.forEach(article => {
-            const card = document.createElement('div');
-            card.className = 'article-card';
-
-            const headerDiv = document.createElement('div');
-            headerDiv.className = 'article-header';
-
-            const infoDiv = document.createElement('div');
-            infoDiv.className = 'info';
-
-            const titleH3 = document.createElement('h3');
-            titleH3.textContent = article.title;
-
-            const authorP = document.createElement('p');
-            authorP.textContent = 'Autor: ' + article.author;
-
-            infoDiv.appendChild(titleH3);
-            infoDiv.appendChild(authorP);
-
-            const toggleBtn = document.createElement('button');
-            toggleBtn.className = 'toggle-btn';
-            toggleBtn.textContent = '▼';
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'article-content';
-
-            toggleBtn.onclick = () => {
-                contentDiv.style.display = (contentDiv.style.display === 'block' ? 'none' : 'block');
-            };
-
-            headerDiv.appendChild(infoDiv);
-            headerDiv.appendChild(toggleBtn);
-
-            const tagsDiv = document.createElement('div');
-            tagsDiv.className = 'article-tags';
-            if (Array.isArray(article.tags)) {
-                article.tags.forEach(t => {
-                    const span = document.createElement('span');
-                    span.className = 'tag';
-                    span.textContent = t.name || t; // obsługa jeśli tag to string lub obiekt
-                    tagsDiv.appendChild(span);
-                });
-            }
-
-            contentDiv.textContent = article.description;
-
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'article-actions';
-            const editBtn = document.createElement('button');
-            editBtn.textContent = 'Edytuj';
-            editBtn.onclick = () => editArticle(article.id);
-            const deleteBtn = document.createElement('button');
-            deleteBtn.textContent = 'Usuń';
-            deleteBtn.onclick = () => deleteArticle(article.id);
-
-            actionsDiv.appendChild(editBtn);
-            actionsDiv.appendChild(deleteBtn);
-
-            card.appendChild(headerDiv);
-            card.appendChild(tagsDiv);
-            card.appendChild(contentDiv);
-            card.appendChild(actionsDiv);
-
-            container.appendChild(card);
-        });
-    }
-
-    async function editArticle(id) {
-        const res = await fetch(`${API}/${id}`);
-        if (!res.ok) {
-            alert('Nie znaleziono artykułu');
-            return;
-        }
-        const article = await res.json();
-        document.getElementById('formTitle').textContent = 'Edytuj artykuł';
-        document.getElementById('articleId').value = article.id;
-        document.getElementById('title').value = article.title;
-        document.getElementById('description').value = article.description;
-        document.getElementById('author').value = article.author;
-        document.getElementById('tags').value = (article.tags || []).map(t => t.name || t).join(', ');
-        openForm();
-    }
-
-    async function deleteArticle(id) {
-        if (!confirm('Na pewno chcesz usunąć ten artykuł?')) return;
-        const res = await fetch(`${API}/${id}`, { method: 'DELETE' });
-        if (res.ok) {
-            await loadArticles();
-        } else {
-            alert('Błąd przy usuwaniu');
-        }
-    }
-
-    function openForm() {
-        document.getElementById('formTitle').textContent = 'Dodaj nowy artykuł';
-        document.getElementById('articleForm').reset();
-        document.getElementById('articleId').value = '';
-        document.getElementById('formModal').style.display = 'flex';
-    }
-
-    function closeForm() {
-        document.getElementById('formModal').style.display = 'none';
-    }
-
-    window.onclick = (event) => {
-        const modal = document.getElementById('formModal');
-        if (event.target === modal) {
-            closeForm();
-        }
-    };
-
-    // Wczytanie artykułów po załadowaniu strony
-    loadArticles();
+    async function loadArticles(){const r=await fetch(`${API_URL}/articles`);if(r.ok){articles=await r.json();renderArticles(articles);}}
+    async function loadAvailableTags(){const r=await fetch(`${API_URL}/tags`);if(r.ok){availableTags=await r.json();renderAvailableTags();}}
+    function renderArticles(list){const c=document.getElementById('articles');c.innerHTML=list.length?'':'<p>Brak notatek.</p>';
+        list.forEach(a=>{const card=document.createElement('div');card.className='article-card';
+            const h=document.createElement('div');h.className='article-header';
+            const i=document.createElement('div');i.className='article-info';
+            const t=document.createElement('h3');t.textContent=a.title;
+            const au=document.createElement('span');au.className='author';au.textContent='Autor: '+a.author;
+            const d=document.createElement('span');d.className='date';if(a.createdAt){const dt=new Date(a.createdAt);d.textContent=dt.toLocaleDateString('pl-PL',{year:'numeric',month:'short',day:'numeric'});}
+            const tags=document.createElement('div');tags.className='article-tags';a.tags.forEach(tag=>{const el=document.createElement('span');el.className='tag';el.textContent=tag.name;el.style.backgroundColor=tag.color||'#1d4e9f';tags.appendChild(el);});
+            i.append(t,au,d,tags);const btn=document.createElement('button');btn.className='toggle-btn';btn.innerHTML='▼';
+            h.append(i,btn);const cont=document.createElement('div');cont.className='article-content';cont.textContent=a.description;
+            btn.onclick=()=>{cont.classList.toggle('open');btn.classList.toggle('rotated');};
+            card.append(h,cont);c.appendChild(card);});}
+    function renderAvailableTags(){const c=document.getElementById('availableTags');c.innerHTML='';availableTags.forEach(tag=>{const e=document.createElement('span');e.className='tag';e.textContent=tag.name;e.style.backgroundColor=tag.color||'#1d4e9f';e.onclick=()=>toggleSelectTag(tag);c.appendChild(e);});}
+    function toggleSelectTag(tag){const i=selectedTags.findIndex(t=>t.name.toLowerCase()===tag.name.toLowerCase());if(i>=0)selectedTags.splice(i,1);else selectedTags.push(tag);renderSelectedTags();}
+    function renderSelectedTags(){const c=document.getElementById('selectedTagsContainer');c.innerHTML='';selectedTags.forEach(tag=>{const e=document.createElement('div');e.className='selected-tag';e.style.backgroundColor=tag.color||'#1d4e9f';e.textContent=tag.name;const x=document.createElement('span');x.className='remove-tag';x.textContent='×';x.onclick=()=>{selectedTags=selectedTags.filter(t=>t.name!==tag.name);renderSelectedTags();};e.appendChild(x);c.appendChild(e);});}
+    function addNewTag(){const name=document.getElementById('newTagName').value.trim();if(!name){alert('Podaj nazwę');return;}if(availableTags.some(t=>t.name.toLowerCase()===name.toLowerCase())){alert('Tag istnieje');return;}const sel=document.querySelector('.color-option.selected');const color=sel?sel.style.backgroundColor:colors[0];const t={name,color};availableTags.push(t);selectedTags.push(t);renderAvailableTags();renderSelectedTags();document.getElementById('newTagName').value='';clearColorSelection();}
+    function initColorPicker(){const p=document.getElementById('colorPicker');p.innerHTML='';colors.forEach(c=>{const d=document.createElement('div');d.className='color-option';d.style.backgroundColor=c;d.onclick=()=>{clearColorSelection();d.classList.add('selected');};p.appendChild(d);});}
+    function clearColorSelection(){document.querySelectorAll('.color-option').forEach(e=>e.classList.remove('selected'));}
+    function openForm(){selectedTags=[];renderSelectedTags();document.getElementById('articleForm').reset();clearColorSelection();document.getElementById('formModal').classList.add('show');}
+    function closeForm(){document.getElementById('formModal').classList.remove('show');}
+    async function submitArticle(e){e.preventDefault();const t=e.target.title.value.trim(),d=e.target.description.value.trim(),a=e.target.author.value.trim();if(d.split(/\s+/).length>500){alert('Opis max 500 słów');return;}if(selectedTags.length===0){alert('Wybierz tag');return;}const p={title:t,description:d,author:a,createdAt:new Date().toISOString(),tagDTOs:selectedTags.map(t=>({name:t.name,color:t.color}))};const r=await fetch(`${API_URL}/articles`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});if(!r.ok){alert('Błąd zapisu');return;}await loadArticles();closeForm();}
+    function clearSearch(){document.getElementById('searchInput').value='';renderArticles(articles);}
+    document.getElementById('searchInput').addEventListener('input',e=>{const q=e.target.value.trim().toLowerCase();if(!q){renderArticles(articles);return;}const f=articles.filter(a=>a.title.toLowerCase().includes(q)||a.author.toLowerCase().includes(q)||a.tags.some(t=>t.name.toLowerCase().includes(q)));renderArticles(f);});
+    window.onload=()=>{loadArticles();loadAvailableTags();initColorPicker();};
 </script>
-
 </body>
 </html>
